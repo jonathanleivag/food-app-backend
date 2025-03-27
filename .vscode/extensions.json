@@ -1,0 +1,24 @@
+{
+  "recommendations": [
+    "ms-vscode.vscode-typescript-next",
+    "streetsidesoftware.code-spell-checker",
+    "mikestead.dotenv",
+    "IronGeek.vscode-env",
+    "usernamehw.errorlens",
+    "dbaeumer.vscode-eslint",
+    "kisstkondoros.vscode-gutter-preview",
+    "wix.vscode-import-cost",
+    "VisualStudioExptTeam.vscodeintellicode",
+    "VisualStudioExptTeam.intellicode-api-usage-examples",
+    "bierner.markdown-checkbox",
+    "bierner.markdown-emoji",
+    "bierner.markdown-footnotes",
+    "bierner.markdown-preview-github-styles",
+    "bierner.markdown-mermaid",
+    "bierner.markdown-yaml-preamble",
+    "streetsidesoftware.code-spell-checker-spanish",
+    "Gruntfuggly.todo-tree",
+    "ChakrounAnas.turbo-console-log",
+    "pmneo.tsimporter"
+  ]
+}
