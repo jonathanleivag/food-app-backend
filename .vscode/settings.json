@@ -1,5 +1,6 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
-  "cSpell.language": "en, es"
+  "cSpell.language": "en, es",
+  "cSpell.words": ["classpath", "foodapp", "mongodb"]
 }

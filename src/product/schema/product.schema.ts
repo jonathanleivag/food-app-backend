@@ -1,0 +1,45 @@
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { HydratedDocument } from 'mongoose';
+
+export type ProductDocument = HydratedDocument<Product>;
+
+@Schema({
+  versionKey: false,
+  toJSON: {
+    transform: (doc, ret) => {
+      ret.id = ret._id as string;
+      delete ret._id;
+      return ret;
+    },
+  },
+})
+export class Product {
+  @Prop({ required: true, unique: true })
+  name: string;
+
+  @Prop({ required: true })
+  price: number;
+
+  @Prop({ required: true })
+  description: string;
+
+  @Prop({ required: true })
+  category: string;
+
+  @Prop({ required: true })
+  imageUrl: string;
+
+  @Prop({ default: true })
+  isAvailable: boolean;
+
+  @Prop([String])
+  ingredients: string[];
+
+  @Prop({ required: true })
+  preparationTime: number;
+
+  @Prop({ default: 0 })
+  calories: number;
+}
+
+export const ProductSchema = SchemaFactory.createForClass(Product);
