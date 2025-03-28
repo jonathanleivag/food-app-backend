@@ -32,8 +32,11 @@ export class Product {
   @Prop({ default: true })
   isAvailable: boolean;
 
-  @Prop([String])
-  ingredients: string[];
+  @Prop({ type: [String], required: true })
+  baseIngredients: string[];
+
+  @Prop({ type: [String], default: [] })
+  extraIngredients: string[];
 
   @Prop({ required: true })
   preparationTime: number;

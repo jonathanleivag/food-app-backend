@@ -46,20 +46,14 @@ export class ProductService {
     }
   }
 
-  findOne(id: ObjectId) {
-    try {
-      const product = this.productModule.findById(id);
+  async findOne(id: ObjectId) {
+    const product = await this.productModule.findById(id);
 
-      if (product === null || product === undefined) {
-        throw new Error('Product not found');
-      }
-
-      return product;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
-      }
+    if (!product) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
     }
+
+    return product;
   }
 
   async update(id: ObjectId, updateProductDto: UpdateProductDto) {
