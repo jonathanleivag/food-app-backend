@@ -131,10 +131,6 @@ export class ProductService {
       const seededProducts =
         await this.productModule.insertMany(productSeedData);
 
-      for (const product of seededProducts) {
-        void this.pusherService.trigger('product', 'product-created', product);
-      }
-
       return seededProducts;
     } catch (error) {
       if (error instanceof Error) {

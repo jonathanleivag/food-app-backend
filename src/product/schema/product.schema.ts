@@ -5,6 +5,7 @@ export type ProductDocument = HydratedDocument<Product>;
 
 @Schema({
   versionKey: false,
+  timestamps: true,
   toJSON: {
     transform: (doc, ret) => {
       ret.id = ret._id as string;
@@ -14,6 +15,12 @@ export type ProductDocument = HydratedDocument<Product>;
   },
 })
 export class Product {
+  @Prop({ type: Date, default: Date.now })
+  createdAt: Date;
+
+  @Prop({ type: Date, default: Date.now })
+  updatedAt: Date;
+
   @Prop({ required: true, unique: true })
   name: string;
 
