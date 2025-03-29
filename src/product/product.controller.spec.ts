@@ -82,14 +82,26 @@ describe('ProductController', () => {
     });
   });
 
+  const mockProducts = [mockProduct]; // Add this near other mocks
+  const mockPaginatedResponse = {
+    data: mockProducts,
+    meta: {
+      total: 1,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+      hasNextPage: false,
+      hasPrevPage: false,
+    },
+  };
+
   describe('findAll', () => {
     it('should return an array of products', async () => {
-      const products = [mockProduct];
-      mockProductService.findAll.mockResolvedValue(products);
+      mockProductService.findAll.mockResolvedValue(mockPaginatedResponse);
 
-      const result = await controller.findAll();
-      expect(result).toEqual(products);
-      expect(mockProductService.findAll).toHaveBeenCalled();
+      const result = await controller.findAll(1, 10);
+      expect(mockProductService.findAll).toHaveBeenCalledWith(1, 10);
+      expect(result).toEqual(mockPaginatedResponse);
     });
   });
 

@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schema/product.schema';
 import { Model, ObjectId } from 'mongoose';
 import { PusherService } from '../pusher/pusher.service';
+import { productSeedData } from './data/product.seed';
 
 @Injectable()
 export class ProductService {
@@ -36,9 +37,25 @@ export class ProductService {
     }
   }
 
-  async findAll() {
+  async findAll(page = 1, limit = 10) {
     try {
-      return await this.productModule.find();
+      const skip = (page - 1) * limit;
+      const [products, total] = await Promise.all([
+        this.productModule.find().skip(skip).limit(limit).exec(),
+        this.productModule.countDocuments(),
+      ]);
+
+      return {
+        data: products,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: skip + limit < total,
+          hasPrevPage: page > 1,
+        },
+      };
     } catch (error) {
       if (error instanceof Error) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
@@ -104,6 +121,31 @@ export class ProductService {
       if (error instanceof Error) {
         throw new HttpException(error.message, HttpStatus.NOT_FOUND);
       }
+    }
+  }
+
+  async seed() {
+    try {
+      await this.productModule.deleteMany({});
+      const seededProducts =
+        await this.productModule.insertMany(productSeedData);
+
+      for (const product of seededProducts) {
+        void this.pusherService.trigger('product', 'product-created', product);
+      }
+
+      return seededProducts;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new HttpException(
+          error.message,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+      throw new HttpException(
+        'Error seeding products',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 }

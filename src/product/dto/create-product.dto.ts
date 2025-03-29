@@ -33,6 +33,11 @@ export class CreateProductDto {
   @IsOptional()
   isAvailable: boolean;
 
+  @IsArray({ message: 'Ingredients must be an array' })
+  @IsNotEmpty({ message: 'Ingredients are required' })
+  @IsString({ each: true, message: 'Each ingredient must be a string' })
+  ingredients: string[];
+
   @IsArray({ message: 'Base ingredients must be an array' })
   @IsNotEmpty({ message: 'Base ingredients are required' })
   @IsString({ each: true, message: 'Each ingredient must be a string' })

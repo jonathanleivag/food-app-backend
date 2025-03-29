@@ -12,6 +12,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ObjectId } from 'mongoose';
+import { Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
 
 @ApiTags('Product')
 @Controller('product')
@@ -24,8 +25,11 @@ export class ProductController {
   }
 
   @Get()
-  findAll() {
-    return this.productService.findAll();
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ) {
+    return this.productService.findAll(page, limit);
   }
 
   @Get(':id')
@@ -44,5 +48,10 @@ export class ProductController {
   @Delete(':id')
   remove(@Param('id') id: ObjectId) {
     return this.productService.remove(id);
+  }
+
+  @Post('seed')
+  seed() {
+    return this.productService.seed();
   }
 }
