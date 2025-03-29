@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
   IsString,
   IsNumber,
@@ -6,23 +7,30 @@ import {
   IsOptional,
   IsUrl,
   IsNotEmpty,
+  MinLength,
 } from 'class-validator';
 
 export class CreateProductDto {
+  @Transform(({ value }: { value: string }) => value.trim())
   @IsString({ message: 'Name must be a string' })
   @IsNotEmpty({ message: 'Name is required' })
+  @MinLength(3, { message: 'Name must be at least 3 characters long' })
   name: string;
 
   @IsNumber()
   @IsNotEmpty({ message: 'Price is required' })
   price: number;
 
+  @Transform(({ value }: { value: string }) => value.trim())
   @IsString({ message: 'Description must be a string' })
   @IsOptional()
+  @MinLength(10, { message: 'Description must be at least 10 characters long' })
   description: string;
 
-  @IsString()
+  @Transform(({ value }: { value: string }) => value.trim())
+  @IsString({ message: 'Category must be a string' })
   @IsNotEmpty({ message: 'Category is required' })
+  @MinLength(3, { message: 'Category must be at least 3 characters long' })
   category: string;
 
   @IsUrl()

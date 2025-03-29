@@ -10,7 +10,8 @@ import { productSeedData } from './data/product.seed';
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectModel(Product.name) private productModule: Model<ProductDocument>,
+    @InjectModel(Product.name)
+    private readonly productModule: Model<ProductDocument>,
     private readonly pusherService: PusherService,
   ) {}
 

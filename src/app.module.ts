@@ -6,6 +6,8 @@ import config from './config/configuration';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProductModule } from './product/product.module';
 import { PusherModule } from './pusher/pusher.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { PusherModule } from './pusher/pusher.module';
     }),
     ProductModule,
     PusherModule,
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
