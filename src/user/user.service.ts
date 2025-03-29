@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { Model, ObjectId } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
+import { userSeed } from './data/user.seed';
 
 @Injectable()
 export class UserService {
@@ -68,5 +69,11 @@ export class UserService {
     }
     await this.userModule.findByIdAndDelete(id);
     return user;
+  }
+
+  async seed() {
+    await this.userModule.deleteMany({});
+    const seedUsers = await this.userModule.insertMany(userSeed);
+    return seedUsers;
   }
 }

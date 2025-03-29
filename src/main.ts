@@ -11,6 +11,8 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('App', 'App endpoints')
     .addTag('Product', 'Products endpoints')
+    .addTag('user', 'User endpoints')
+    .addTag('auth', 'Auth endpoints')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
