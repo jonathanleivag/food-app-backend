@@ -2,5 +2,19 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "cSpell.language": "en, es",
-  "cSpell.words": ["classpath", "foodapp", "mongodb"]
+  "cSpell.words": [
+    "açai",
+    "Açai",
+    "alfredo",
+    "Brûlée",
+    "caesar",
+    "classpath",
+    "Crème",
+    "foodapp",
+    "mascarpone",
+    "mongodb",
+    "nori",
+    "parmesan",
+    "swiss"
+  ]
 }

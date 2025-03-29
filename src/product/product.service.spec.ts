@@ -36,6 +36,7 @@ describe('ProductService', () => {
     findById: jest.fn(),
     findByIdAndUpdate: jest.fn(),
     findByIdAndDelete: jest.fn(),
+    countDocuments: jest.fn(), // Add this
   };
 
   beforeEach(async () => {
@@ -114,18 +115,34 @@ describe('ProductService', () => {
   });
 
   describe('findAll', () => {
-    it('should return all products', async () => {
-      const products = [mockProduct];
-      mockModel.find.mockResolvedValue(products);
+    it('should handle database errors', async () => {
+      const mockError = new Error('Database error');
+      const mockExec = jest.fn().mockRejectedValue(mockError);
+      const mockLimit = jest.fn().mockReturnValue({ exec: mockExec });
+      const mockSkip = jest.fn().mockReturnValue({ limit: mockLimit });
 
-      const result = await service.findAll();
-      expect(result).toEqual(products);
+      mockModel.find.mockReturnValue({ skip: mockSkip });
+      mockModel.countDocuments.mockRejectedValue(mockError);
+
+      await expect(service.findAll(1, 10)).rejects.toThrow('Database error');
     });
 
-    it('should handle errors when finding products', async () => {
-      mockModel.find.mockRejectedValue(new Error('Database error'));
+    it('should return paginated products', async () => {
+      const mockProducts = [{ name: 'Test Product' }];
+      mockModel.find.mockReturnValue({
+        skip: jest.fn().mockReturnValue({
+          limit: jest.fn().mockReturnValue({
+            exec: jest.fn().mockResolvedValue(mockProducts),
+          }),
+        }),
+      });
+      mockModel.countDocuments.mockResolvedValue(1);
 
-      await expect(service.findAll()).rejects.toThrow(HttpException);
+      const result = await service.findAll(1, 10);
+
+      expect(result).toBeDefined();
+      expect(result?.data).toEqual(mockProducts);
+      expect(result?.meta.total).toBe(1);
     });
   });
 
