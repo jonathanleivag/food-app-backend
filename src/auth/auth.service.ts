@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UserService } from 'src/user/user.service';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UserService } from '../user/user.service';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +14,11 @@ export class AuthService {
 
   async login(loginAuthDto: LoginAuthDto) {
     const user = await this.userService.findOneByEmail(loginAuthDto.email);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
     const isMatch = await bcryptjs.compare(
       loginAuthDto.password,
       user.password,
