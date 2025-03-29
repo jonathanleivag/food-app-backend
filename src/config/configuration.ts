@@ -8,4 +8,7 @@ export default () => ({
     SECRET_PUSHER: process.env.SECRET_PUSHER,
     CLUSTER_PUSHER: process.env.CLUSTER_PUSHER,
   },
+  jwt: {
+    SECRET: process.env.JWT_SECRET,
+  },
 });
