@@ -8,6 +8,7 @@ import { PusherService } from '../pusher/pusher.service';
 import { productSeedData } from './data/product.seed';
 import { UserService } from 'src/user/user.service';
 import { UserRole } from 'src/user/enums/user-roles.enum';
+import { ProductFindAllPaginate } from 'src/type';
 
 @Injectable()
 export class ProductService {
@@ -18,7 +19,10 @@ export class ProductService {
     private readonly userService: UserService,
   ) {}
 
-  async create(createProductDto: CreateProductDto, email: string) {
+  async create(
+    createProductDto: CreateProductDto,
+    email: string,
+  ): Promise<ProductDocument> {
     try {
       const product = await this.productModule.findOne({
         name: createProductDto.name,
@@ -51,7 +55,10 @@ export class ProductService {
     }
   }
 
-  async findAll(page = 1, limit = 10) {
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<ProductFindAllPaginate | undefined> {
     try {
       const skip = (page - 1) * limit;
       const [products, total] = await Promise.all([
@@ -82,7 +89,7 @@ export class ProductService {
     }
   }
 
-  async findOne(id: ObjectId) {
+  async findOne(id: ObjectId): Promise<ProductDocument> {
     const product = await this.productModule
       .findById(id)
       .populate('createdBy', ['name', 'email', 'role']);
@@ -94,7 +101,10 @@ export class ProductService {
     return product;
   }
 
-  async update(id: ObjectId, updateProductDto: UpdateProductDto) {
+  async update(
+    id: ObjectId,
+    updateProductDto: UpdateProductDto,
+  ): Promise<ProductDocument | undefined> {
     try {
       const product = this.productModule.findById(id);
       if (product === null || product === undefined) {
@@ -124,7 +134,7 @@ export class ProductService {
     }
   }
 
-  async remove(id: ObjectId) {
+  async remove(id: ObjectId): Promise<ProductDocument | undefined> {
     try {
       const product = await this.productModule.findById(id);
       if (product === null || product === undefined) {
@@ -145,7 +155,7 @@ export class ProductService {
     }
   }
 
-  async seed() {
+  async seed(): Promise<ProductDocument[]> {
     try {
       const userAdmin = await this.userService.findOneByEmailAndRole(
         'email@jonathanleivag.cl',

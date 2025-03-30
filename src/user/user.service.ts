@@ -6,6 +6,7 @@ import { User, UserDocument } from './schema/user.schema';
 import { Model, ObjectId } from 'mongoose';
 import * as bcrypt from 'bcryptjs';
 import { userSeed } from './data/user.seed';
+import { UserDocumentWithoutPassword } from '../type';
 
 @Injectable()
 export class UserService {
@@ -13,7 +14,9 @@ export class UserService {
     @InjectModel(User.name) private readonly userModule: Model<UserDocument>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(
+    createUserDto: CreateUserDto,
+  ): Promise<UserDocumentWithoutPassword> {
     const user = await this.userModule.findOne({ email: createUserDto.email });
 
     if (user) {
@@ -27,12 +30,12 @@ export class UserService {
     return result;
   }
 
-  async findAll() {
-    return await this.userModule.find();
+  async findAll(): Promise<UserDocumentWithoutPassword[]> {
+    return await this.userModule.find().select('-password');
   }
 
-  async findOne(id: ObjectId) {
-    const user = await this.userModule.findById(id);
+  async findOne(id: ObjectId): Promise<UserDocumentWithoutPassword> {
+    const user = await this.userModule.findById(id).select('-password');
 
     if (user === null || user === undefined) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -40,7 +43,7 @@ export class UserService {
     return user;
   }
 
-  async findOneByEmail(email: string) {
+  async findOneByEmail(email: string): Promise<UserDocument> {
     const user = await this.userModule.findOne({ email });
 
     if (user === null || user === undefined) {
@@ -52,7 +55,10 @@ export class UserService {
     return user;
   }
 
-  async findOneByEmailAndRole(email: string, role: string) {
+  async findOneByEmailAndRole(
+    email: string,
+    role: string,
+  ): Promise<UserDocument> {
     const user = await this.userModule.findOne({ email, role });
     if (user === null || user === undefined) {
       throw new HttpException(
@@ -63,26 +69,39 @@ export class UserService {
     return user;
   }
 
-  async update(id: ObjectId, updateUserDto: UpdateUserDto) {
+  async update(
+    id: ObjectId,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserDocumentWithoutPassword> {
     const user = await this.userModule.findById(id);
     if (user === null || user === undefined) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return await this.userModule.findByIdAndUpdate(id, updateUserDto, {
-      new: true,
-    });
+
+    const updatedUser = await this.userModule
+      .findByIdAndUpdate(id, updateUserDto, {
+        new: true,
+      })
+      .select('-password');
+
+    if (!updatedUser) {
+      throw new HttpException('Failed to update user', HttpStatus.NOT_FOUND);
+    }
+
+    return updatedUser;
   }
 
-  async remove(id: ObjectId) {
-    const user = this.userModule.findById(id);
-    if (user === null || user === undefined) {
+  async remove(id: ObjectId): Promise<UserDocumentWithoutPassword> {
+    const user = await this.userModule.findById(id).select('-password');
+    if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
     await this.userModule.findByIdAndDelete(id);
     return user;
   }
 
-  async seed() {
+  async seed(): Promise<UserDocument[]> {
     await this.userModule.deleteMany({});
     const seedUsers = await this.userModule.insertMany(userSeed);
     return seedUsers;
