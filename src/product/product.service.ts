@@ -3,9 +3,11 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './schema/product.schema';
-import { Model, ObjectId } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 import { PusherService } from '../pusher/pusher.service';
 import { productSeedData } from './data/product.seed';
+import { UserService } from 'src/user/user.service';
+import { UserRole } from 'src/user/enums/user-roles.enum';
 
 @Injectable()
 export class ProductService {
@@ -13,9 +15,10 @@ export class ProductService {
     @InjectModel(Product.name)
     private readonly productModule: Model<ProductDocument>,
     private readonly pusherService: PusherService,
+    private readonly userService: UserService,
   ) {}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, email: string) {
     try {
       const product = await this.productModule.findOne({
         name: createProductDto.name,
@@ -24,7 +27,17 @@ export class ProductService {
       if (product) {
         throw new Error('Product already exists');
       }
-      const newProduct = await this.productModule.create(createProductDto);
+
+      const user = await this.userService.findOneByEmailAndRole(
+        email,
+        UserRole.ADMIN,
+      );
+
+      const newProduct = await this.productModule.create({
+        ...createProductDto,
+        createdBy: new Types.ObjectId(user._id),
+      });
+
       void this.pusherService.trigger('product', 'product-created', newProduct);
       return newProduct;
     } catch (error) {
@@ -42,7 +55,12 @@ export class ProductService {
     try {
       const skip = (page - 1) * limit;
       const [products, total] = await Promise.all([
-        this.productModule.find().skip(skip).limit(limit).exec(),
+        this.productModule
+          .find()
+          .populate('createdBy', ['name', 'email', 'role'])
+          .skip(skip)
+          .limit(limit)
+          .exec(),
         this.productModule.countDocuments(),
       ]);
 
@@ -65,7 +83,9 @@ export class ProductService {
   }
 
   async findOne(id: ObjectId) {
-    const product = await this.productModule.findById(id);
+    const product = await this.productModule
+      .findById(id)
+      .populate('createdBy', ['name', 'email', 'role']);
 
     if (!product) {
       throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
@@ -127,11 +147,25 @@ export class ProductService {
 
   async seed() {
     try {
-      await this.productModule.deleteMany({});
-      const seededProducts =
-        await this.productModule.insertMany(productSeedData);
+      const userAdmin = await this.userService.findOneByEmailAndRole(
+        'email@jonathanleivag.cl',
+        UserRole.ADMIN,
+      );
 
-      return seededProducts;
+      await this.productModule.deleteMany({});
+
+      await this.productModule.insertMany(
+        productSeedData.map((product) => ({
+          ...product,
+          createdBy: new Types.ObjectId(userAdmin._id),
+        })),
+      );
+
+      const populatedProducts = await this.productModule
+        .find()
+        .populate('createdBy', ['name', 'email', 'role']);
+
+      return populatedProducts;
     } catch (error) {
       if (error instanceof Error) {
         throw new HttpException(
