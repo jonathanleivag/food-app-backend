@@ -103,6 +103,9 @@ export class UserService {
 
   async seed(): Promise<UserDocument[]> {
     await this.userModule.deleteMany({});
+    userSeed.forEach((user) => {
+      user.password = bcrypt.hashSync(user.password, 10);
+    });
     const seedUsers = await this.userModule.insertMany(userSeed);
     return seedUsers;
   }

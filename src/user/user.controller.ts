@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { UserDocument } from './schema/user.schema';
 
-@ApiTags('user')
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
