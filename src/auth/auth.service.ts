@@ -4,6 +4,7 @@ import { UserService } from '../user/user.service';
 import { LoginAuthDto } from './dto/login-auth.dto';
 import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
+import { LoginDocument, UserDocumentWithoutPassword } from '../type';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +13,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginAuthDto: LoginAuthDto) {
+  async login(loginAuthDto: LoginAuthDto): Promise<LoginDocument> {
     const user = await this.userService.findOneByEmail(loginAuthDto.email);
 
     if (!user) {
@@ -44,7 +45,9 @@ export class AuthService {
     };
   }
 
-  async register(createUserDto: CreateUserDto) {
+  async register(
+    createUserDto: CreateUserDto,
+  ): Promise<UserDocumentWithoutPassword> {
     return await this.userService.create(createUserDto);
   }
 }

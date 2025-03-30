@@ -1,6 +1,7 @@
 import { Controller, Post } from '@nestjs/common';
 import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
+import { UserDocument } from './schema/user.schema';
 
 @ApiTags('user')
 @Controller('user')
@@ -8,7 +9,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('seed')
-  async seed() {
+  async seed(): Promise<UserDocument[]> {
     return await this.userService.seed();
   }
 }
