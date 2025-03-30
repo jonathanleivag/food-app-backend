@@ -12,6 +12,7 @@ export const productSeedData = [
     extraIngredients: ['cheese', 'bacon', 'egg'],
     preparationTime: 15,
     calories: 650,
+    createdBy: '',
   },
   {
     name: 'BBQ Chicken Pizza',
@@ -26,6 +27,7 @@ export const productSeedData = [
     extraIngredients: ['extra chicken', 'extra cheese', 'jalapeños'],
     preparationTime: 20,
     calories: 850,
+    createdBy: '',
   },
   {
     name: 'Spicy Buffalo Wings',
@@ -40,6 +42,7 @@ export const productSeedData = [
     extraIngredients: ['ranch dressing', 'blue cheese', 'celery'],
     preparationTime: 25,
     calories: 550,
+    createdBy: '',
   },
   {
     name: 'Greek Salad',

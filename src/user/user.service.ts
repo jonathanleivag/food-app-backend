@@ -52,6 +52,17 @@ export class UserService {
     return user;
   }
 
+  async findOneByEmailAndRole(email: string, role: string) {
+    const user = await this.userModule.findOne({ email, role });
+    if (user === null || user === undefined) {
+      throw new HttpException(
+        'User not found or role not working',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
+  }
+
   async update(id: ObjectId, updateUserDto: UpdateUserDto) {
     const user = await this.userModule.findById(id);
     if (user === null || user === undefined) {
