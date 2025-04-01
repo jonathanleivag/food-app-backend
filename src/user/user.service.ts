@@ -25,9 +25,13 @@ export class UserService {
 
     createUserDto.password = bcrypt.hashSync(createUserDto.password, 10);
     const newUser = await this.userModule.create(createUserDto);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password, _id, ...result } = newUser.toObject();
-    return result;
+
+    const userSelected = (await this.userModule
+      .findById(newUser._id)
+      .select(['-_id', '-password'])
+      .lean()) as UserDocumentWithoutPassword;
+
+    return userSelected;
   }
 
   async findAll(): Promise<UserDocumentWithoutPassword[]> {

@@ -14,6 +14,7 @@ async function bootstrap() {
     .addTag('User', 'User endpoints')
     .addTag('Auth', 'Auth endpoints')
     .addTag('Cart', 'Cart endpoints')
+    .addTag('Payment', 'Payment endpoints')
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
