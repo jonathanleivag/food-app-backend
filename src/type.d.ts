@@ -1,8 +1,9 @@
 import { Request } from 'express';
-import { ProductDocument } from 'src/product/schema/product.schema';
+import { ProductDocument } from '../product/schema/product.schema';
+import { UserDocument } from './user/schema/user.schema';
 
 export interface JwtPayload {
-  id: string;
+  sub: string;
   email: string;
 }
 
@@ -31,3 +32,17 @@ export type UserDocumentWithoutPassword = Omit<
   UserDocument,
   'password' | '_id'
 >;
+
+export interface handleSuccessQuery {
+  payment_id: string;
+  preference_id: string;
+}
+
+export interface CreatePaymentDtoItem {
+  title: string;
+  unit_price: number;
+  quantity: number;
+  id: ObjectId;
+  category_id: ObjectId;
+  description: string;
+}
