@@ -6,6 +6,7 @@ import { Product, ProductSchema } from './schema/product.schema';
 import { PusherModule } from '../pusher/pusher.module';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from '../auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from '../auth/auth.module';
     PusherModule,
     UserModule,
     AuthModule,
+    ConfigModule,
   ],
   controllers: [ProductController],
   providers: [ProductService],

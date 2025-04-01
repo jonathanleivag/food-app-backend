@@ -4,6 +4,7 @@ export default () => ({
   },
   api: {
     URL_API: process.env.URL_API,
+    EMAIL: process.env.EMAIL,
   },
   pusher: {
     API_ID_PUSHER: process.env.APP_ID_PUSHER,
