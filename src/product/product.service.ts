@@ -9,6 +9,7 @@ import { productSeedData } from './data/product.seed';
 import { UserService } from 'src/user/user.service';
 import { UserRole } from 'src/user/enums/user-roles.enum';
 import { ProductFindAllPaginate } from 'src/type';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class ProductService {
@@ -17,6 +18,7 @@ export class ProductService {
     private readonly productModule: Model<ProductDocument>,
     private readonly pusherService: PusherService,
     private readonly userService: UserService,
+    private readonly configService: ConfigService,
   ) {}
 
   async create(
@@ -158,7 +160,7 @@ export class ProductService {
   async seed(): Promise<ProductDocument[]> {
     try {
       const userAdmin = await this.userService.findOneByEmailAndRole(
-        'email@jonathanleivag.cl',
+        this.configService.get<string>('api.EMAIL')!,
         UserRole.ADMIN,
       );
 
