@@ -5,6 +5,7 @@ import { LoginAuthDto } from './dto/login-auth.dto';
 import * as bcryptjs from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDocument, UserDocumentWithoutPassword } from '../type';
+import { ObjectId } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -38,9 +39,11 @@ export class AuthService {
     };
 
     const token = await this.jwtService.signAsync(payload);
-
+    const userWithoutPassword = await this.userService.findOne(
+      user.id as ObjectId,
+    );
     return {
-      user,
+      user: userWithoutPassword,
       token,
     };
   }
