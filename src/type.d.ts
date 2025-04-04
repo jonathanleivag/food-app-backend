@@ -24,7 +24,7 @@ export interface ProductFindAllPaginate {
 }
 
 export interface LoginDocument {
-  user: UserDocument;
+  user: UserDocumentWithoutPassword;
   token: string;
 }
 
