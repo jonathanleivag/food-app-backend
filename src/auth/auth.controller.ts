@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -32,6 +33,11 @@ export class AuthController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<UserDocumentWithoutPassword> {
     return this.authService.register(createUserDto);
+  }
+
+  @Get('revalidate')
+  revalidate(@Query('token') token: string): Promise<LoginDocument> {
+    return this.authService.revalidate(token);
   }
 
   @Get('test')

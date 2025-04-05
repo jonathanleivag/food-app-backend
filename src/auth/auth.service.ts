@@ -53,4 +53,35 @@ export class AuthService {
   ): Promise<UserDocumentWithoutPassword> {
     return await this.userService.create(createUserDto);
   }
+
+  async revalidate(token: string) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const verifyAsync = await this.jwtService.verifyAsync(token);
+
+    if (!verifyAsync) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const decode = await this.jwtService.decode(token);
+
+    if (!decode) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const user = await this.userService.findOne(decode.sub as ObjectId);
+
+    const payload = {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      sub: user.id,
+      email: user.email,
+    };
+
+    const newToken = await this.jwtService.signAsync(payload);
+    return {
+      user,
+      token: newToken,
+    };
+  }
 }
