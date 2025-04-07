@@ -27,13 +27,18 @@ export class CartService {
       });
 
       if (existingCart) {
-        throw new Error('User already has an active cart');
+        const id = existingCart._id as ObjectId;
+        return await this.update(
+          id,
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          { ...createCartDto, id: id.toString() },
+          true,
+        );
       }
 
       const product = await this.productService.findOne(
         createCartDto.productId,
       );
-
       const newCart = await this.cartModule.create({
         user: user._id,
         items: [
@@ -83,6 +88,7 @@ export class CartService {
   async update(
     id: ObjectId,
     updateCartDto: UpdateCartDto,
+    created: boolean = false,
   ): Promise<CartDocument> {
     try {
       const cart = await this.cartModule.findById(id);
@@ -95,6 +101,8 @@ export class CartService {
       }
 
       if (
+        updateCartDto.id === null ||
+        updateCartDto.id === undefined ||
         updateCartDto.productId === null ||
         updateCartDto.productId === undefined ||
         updateCartDto.quantity === null ||
@@ -102,7 +110,7 @@ export class CartService {
         updateCartDto.quantity < 1 ||
         updateCartDto.extra === null ||
         updateCartDto.extra === undefined ||
-        updateCartDto.extra <= 0
+        updateCartDto.extra < 0
       ) {
         throw new Error('Invalid product or quantity');
       }
@@ -111,27 +119,56 @@ export class CartService {
         updateCartDto.productId,
       );
 
-      const existingItemIndex = cart.items.findIndex(
-        (item) => item.product._id.toString() === product._id.toString(),
-      );
-
-      if (existingItemIndex > -1) {
-        cart.items[existingItemIndex].quantity = updateCartDto.quantity;
-      } else {
+      if (created) {
         cart.items.push({
           product: product._id,
           quantity: updateCartDto.quantity,
           extra: updateCartDto.extra,
           price: product.price,
         });
+
+        cart.total = cart.items.reduce(
+          (sum, item) => sum + item.price * item.quantity + (item.extra || 0),
+          0,
+        );
+
+        const updatedCart = await cart.save();
+        return await updatedCart.populate('items.product');
+      } else {
+        const existingItemIndex = cart.items.findIndex(
+          (item) => item._id!.toString() === updateCartDto.id,
+        );
+
+        if (existingItemIndex === -1) {
+          throw new Error('Item not found in cart');
+        }
+
+        const updatedCart = await this.cartModule
+          .findOneAndUpdate(
+            { _id: id, 'items._id': updateCartDto.id },
+            {
+              $set: {
+                'items.$.quantity': updateCartDto.quantity,
+                'items.$.extra': updateCartDto.extra,
+              },
+            },
+            { new: true },
+          )
+          .populate('items.product');
+
+        if (!updatedCart) {
+          throw new Error('Failed to update cart');
+        }
+
+        // Recalculate total after update
+        updatedCart.total = updatedCart.items.reduce(
+          (sum, item) => sum + item.price * item.quantity + (item.extra || 0),
+          0,
+        );
+        await updatedCart.save();
+
+        return updatedCart;
       }
-
-      cart.total =
-        cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0) +
-        updateCartDto.extra;
-
-      const updatedCart = await cart.save();
-      return await updatedCart.populate('items.product');
     } catch (error) {
       if (error instanceof Error) {
         throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
