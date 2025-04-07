@@ -24,12 +24,14 @@ export class Cart {
     {
       product: { type: Types.ObjectId, ref: Product.name, required: true },
       quantity: { type: Number, required: true, min: 1 },
+      extra: { type: Number, required: true, min: 0 },
       price: { type: Number, required: true },
     },
   ])
   items: {
     product: Types.ObjectId;
     quantity: number;
+    extra: number;
     price: number;
   }[];
 

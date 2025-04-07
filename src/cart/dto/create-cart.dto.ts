@@ -10,4 +10,9 @@ export class CreateCartDto {
   @IsNotEmpty()
   @Min(1)
   quantity: number;
+
+  @IsNumber()
+  @IsNotEmpty()
+  @Min(0)
+  extra: number;
 }
