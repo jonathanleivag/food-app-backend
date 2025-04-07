@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Types } from 'mongoose';
 import { User } from '../../user/schema/user.schema';
+import { extraIngredients } from 'src/type';
 
 export type ProductDocument = HydratedDocument<Product>;
 
@@ -46,8 +47,8 @@ export class Product {
   @Prop({ type: [String], required: true })
   baseIngredients: string[];
 
-  @Prop({ type: [String], default: [] })
-  extraIngredients: string[];
+  @Prop({ type: [{ name: String, price: Number }], default: [] })
+  extraIngredients: extraIngredients[];
 
   @Prop({ required: true })
   preparationTime: number;

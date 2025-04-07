@@ -46,3 +46,8 @@ export interface CreatePaymentDtoItem {
   category_id: ObjectId;
   description: string;
 }
+
+export interface extraIngredients {
+  name: string;
+  price: number;
+}
