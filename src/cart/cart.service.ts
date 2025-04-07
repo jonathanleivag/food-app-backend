@@ -40,10 +40,11 @@ export class CartService {
           {
             product: product._id,
             quantity: createCartDto.quantity,
+            extra: createCartDto.extra,
             price: product.price,
           },
         ],
-        total: product.price * createCartDto.quantity,
+        total: product.price * createCartDto.quantity + createCartDto.extra,
       });
 
       return await newCart.populate('items.product');
@@ -98,7 +99,10 @@ export class CartService {
         updateCartDto.productId === undefined ||
         updateCartDto.quantity === null ||
         updateCartDto.quantity === undefined ||
-        updateCartDto.quantity < 1
+        updateCartDto.quantity < 1 ||
+        updateCartDto.extra === null ||
+        updateCartDto.extra === undefined ||
+        updateCartDto.extra <= 0
       ) {
         throw new Error('Invalid product or quantity');
       }
@@ -117,14 +121,14 @@ export class CartService {
         cart.items.push({
           product: product._id,
           quantity: updateCartDto.quantity,
+          extra: updateCartDto.extra,
           price: product.price,
         });
       }
 
-      cart.total = cart.items.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0,
-      );
+      cart.total =
+        cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0) +
+        updateCartDto.extra;
 
       const updatedCart = await cart.save();
       return await updatedCart.populate('items.product');
