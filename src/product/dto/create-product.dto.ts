@@ -1,4 +1,4 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsNumber,
@@ -8,7 +8,9 @@ import {
   IsUrl,
   IsNotEmpty,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { extraIngredients } from '../../type';
 
 export class CreateProductDto {
   @Transform(({ value }: { value: string }) => value.trim())
@@ -53,8 +55,8 @@ export class CreateProductDto {
 
   @IsArray({ message: 'Extra ingredients must be an array' })
   @IsOptional()
-  @IsString({ each: true, message: 'Each ingredient must be a string' })
-  extraIngredients: string[];
+  @ValidateNested({ each: true })
+  extraIngredients: extraIngredients[];
 
   @IsNumber()
   @IsNotEmpty({ message: 'Preparation time is required' })
