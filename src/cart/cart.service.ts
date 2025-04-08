@@ -46,6 +46,8 @@ export class CartService {
             product: product._id,
             quantity: createCartDto.quantity,
             extra: createCartDto.extra,
+            ingredients: createCartDto.ingredients,
+            extraIngredients: createCartDto.extraIngredients,
             price: product.price,
           },
         ],
@@ -108,6 +110,10 @@ export class CartService {
         updateCartDto.quantity === null ||
         updateCartDto.quantity === undefined ||
         updateCartDto.quantity < 1 ||
+        updateCartDto.ingredients === null ||
+        updateCartDto.ingredients === undefined ||
+        updateCartDto.ingredients.length < 1 ||
+        updateCartDto.ingredients.length === 0 ||
         updateCartDto.extra === null ||
         updateCartDto.extra === undefined ||
         updateCartDto.extra < 0
@@ -123,6 +129,8 @@ export class CartService {
         cart.items.push({
           product: product._id,
           quantity: updateCartDto.quantity,
+          ingredients: updateCartDto.ingredients,
+          extraIngredients: updateCartDto.extraIngredients,
           extra: updateCartDto.extra,
           price: product.price,
         });
@@ -150,6 +158,8 @@ export class CartService {
               $set: {
                 'items.$.quantity': updateCartDto.quantity,
                 'items.$.extra': updateCartDto.extra,
+                'items.$.ingredients': updateCartDto.ingredients,
+                'items.$.extraIngredients': updateCartDto.extraIngredients,
               },
             },
             { new: true },
@@ -204,9 +214,16 @@ export class CartService {
 
   async removeItemFromCart(
     cartId: ObjectId,
-    productId: string,
+    idItem: string,
+    email: string,
   ): Promise<CartDocument> {
-    const cart = await this.cartModule.findById(cartId);
+    const user = await this.userService.findOneByEmail(email);
+
+    const cart = await this.cartModule.findOne({
+      _id: cartId,
+      user: user._id,
+    });
+
     if (!cart) {
       throw new HttpException('Cart not found', HttpStatus.NOT_FOUND);
     }
@@ -218,13 +235,16 @@ export class CartService {
       );
     }
 
-    cart.items = cart.items.filter(
-      (item) => item.product.toString() !== productId,
-    );
+    cart.items = cart.items.filter((item) => item._id?.toString() !== idItem);
+
     cart.total = cart.items.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
+
+    if (cart.items.length === 0) {
+      return await this.remove(cartId);
+    }
 
     return await cart.save();
   }

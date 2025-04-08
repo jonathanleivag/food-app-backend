@@ -3,7 +3,7 @@ import { CreatePaymentDto } from './dto/create-payment.dto';
 import { MercadoPagoConfig, Preference, Payment } from 'mercadopago';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Schema } from 'mongoose';
+import { Model, ObjectId, Schema } from 'mongoose';
 import {
   PaymentDocument,
   Payment as PaymentModule,
@@ -12,6 +12,7 @@ import success from './templates/success';
 import failure from './templates/failure';
 import pending from './templates/pending';
 import { UserService } from '../user/user.service';
+import { CartService } from '../cart/cart.service';
 
 @Injectable()
 export class PaymentService {
@@ -26,6 +27,7 @@ export class PaymentService {
     @InjectModel(PaymentModule.name)
     private readonly paymentModule: Model<PaymentDocument>,
     private readonly userService: UserService,
+    private readonly cartService: CartService,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const client = new MercadoPagoConfig({
@@ -63,7 +65,7 @@ export class PaymentService {
           },
           items: createPaymentDto.items,
           back_urls: {
-            success: `${this.configService.get<string>('URL_API')}/payment/success`,
+            success: `${this.configService.get<string>('URL_API')}/payment/success/${cardId}`,
             failure: `${this.configService.get<string>('URL_API')}/payment/failure`,
             pending: `${this.configService.get<string>('URL_API')}/payment/pending`,
           },
@@ -123,16 +125,21 @@ export class PaymentService {
     }
   }
 
-  async paymentSuccess(paymentId: {
-    paymentId: string;
-    preference_id: string;
-  }) {
+  async paymentSuccess(
+    paymentId: {
+      paymentId: string;
+      preference_id: string;
+    },
+    idCard: ObjectId,
+  ) {
     try {
       const response = await this.paymentStatus(
         paymentId.paymentId,
         paymentId.preference_id,
       );
       await this.paymentModule.create(response);
+
+      await this.cartService.completeCart(idCard);
 
       return (
         this.successTemplate

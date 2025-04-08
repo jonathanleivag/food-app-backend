@@ -24,6 +24,8 @@ export class Cart {
     {
       product: { type: Types.ObjectId, ref: Product.name, required: true },
       quantity: { type: Number, required: true, min: 1 },
+      ingredients: { type: [String], required: true },
+      extraIngredients: { type: [String] },
       extra: { type: Number, required: true, min: 0 },
       price: { type: Number, required: true },
     },
@@ -32,6 +34,8 @@ export class Cart {
     _id?: Types.ObjectId;
     product: Types.ObjectId;
     quantity: number;
+    ingredients: string[];
+    extraIngredients?: string[];
     extra: number;
     price: number;
   }[];
@@ -41,6 +45,9 @@ export class Cart {
 
   @Prop({ type: Boolean, default: false })
   isCompleted: boolean;
+
+  @Prop({ type: Boolean, default: false })
+  isDelivered: boolean;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);

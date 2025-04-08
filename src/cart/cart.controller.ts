@@ -60,11 +60,13 @@ export class CartController {
     return this.cartService.completeCart(completeDto.cartId);
   }
 
-  @Delete(':cartId/items/:productId')
+  @Delete(':cartId/items/:idItem')
+  @UseGuards(AuthGuard)
   removeItem(
     @Param('cartId') cartId: ObjectId,
-    @Param('productId') productId: string,
+    @Param('idItem') idItem: string,
+    @Req() req: RequestWithUser,
   ) {
-    return this.cartService.removeItemFromCart(cartId, productId);
+    return this.cartService.removeItemFromCart(cartId, idItem, req.user.email);
   }
 }

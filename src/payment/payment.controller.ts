@@ -7,12 +7,14 @@ import {
   Header,
   UseGuards,
   Request,
+  Param,
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { handleSuccessQuery, RequestWithUser } from 'src/type';
 import { AuthGuard } from 'src/auth/auth.guard';
+import { ObjectId } from 'mongoose';
 
 @ApiTags('Payment')
 @Controller('payment')
@@ -29,22 +31,34 @@ export class PaymentController {
     return this.paymentService.create(createPaymentDto, req.user.sub, cardId);
   }
 
-  @Get('success')
+  @Get('success/:idCard')
   @Header('Content-Type', 'text/html')
-  async getPaymentStatus(@Query() query: handleSuccessQuery) {
-    return this.paymentService.paymentSuccess({
-      paymentId: query.payment_id,
-      preference_id: query.preference_id,
-    });
+  async getPaymentStatus(
+    @Query() query: handleSuccessQuery,
+    @Param('idCard') idCard: ObjectId,
+  ) {
+    return this.paymentService.paymentSuccess(
+      {
+        paymentId: query.payment_id,
+        preference_id: query.preference_id,
+      },
+      idCard,
+    );
   }
 
-  @Get('failure')
+  @Get('failure/:idCard')
   @Header('Content-Type', 'text/html')
-  handleFailure(@Query() query: handleSuccessQuery) {
-    return this.paymentService.paymentSuccess({
-      paymentId: query.payment_id,
-      preference_id: query.preference_id,
-    });
+  handleFailure(
+    @Query() query: handleSuccessQuery,
+    @Param('idCard') idCard: ObjectId,
+  ) {
+    return this.paymentService.paymentSuccess(
+      {
+        paymentId: query.payment_id,
+        preference_id: query.preference_id,
+      },
+      idCard,
+    );
   }
 
   @Get('pending')
