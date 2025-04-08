@@ -248,4 +248,16 @@ export class CartService {
 
     return await cart.save();
   }
+
+  async getCartIsCompleted(email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    const existingCart = await this.cartModule
+      .findOne({
+        user: user._id,
+        isCompleted: true,
+        isDelivered: false,
+      })
+      .populate('items.product');
+    return existingCart;
+  }
 }
