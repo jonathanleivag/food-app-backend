@@ -69,4 +69,10 @@ export class CartController {
   ) {
     return this.cartService.removeItemFromCart(cartId, idItem, req.user.email);
   }
+
+  @Get('completed/user')
+  @UseGuards(AuthGuard)
+  getCartCompleted(@Req() req: RequestWithUser) {
+    return this.cartService.getCartIsCompleted(req.user.email);
+  }
 }
