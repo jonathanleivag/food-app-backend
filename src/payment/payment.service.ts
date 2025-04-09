@@ -137,9 +137,10 @@ export class PaymentService {
         paymentId.paymentId,
         paymentId.preference_id,
       );
-      await this.paymentModule.create(response);
 
+      await this.paymentModule.create(response);
       await this.cartService.completeCart(idCard);
+      await this.cartService.setOrderDate(idCard);
 
       return (
         this.successTemplate
