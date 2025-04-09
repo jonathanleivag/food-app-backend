@@ -252,12 +252,21 @@ export class CartService {
   async getCartIsCompleted(email: string) {
     const user = await this.userService.findOneByEmail(email);
     const existingCart = await this.cartModule
-      .findOne({
+      .find({
         user: user._id,
         isCompleted: true,
         isDelivered: false,
       })
       .populate('items.product');
     return existingCart;
+  }
+
+  async setOrderDate(id: ObjectId) {
+    const cart = await this.cartModule.findById(id);
+    if (!cart) {
+      throw new HttpException('Cart not found', HttpStatus.NOT_FOUND);
+    }
+    cart.orderDate = new Date();
+    return await cart.save();
   }
 }

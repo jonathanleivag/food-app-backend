@@ -48,6 +48,9 @@ export class Cart {
 
   @Prop({ type: Boolean, default: false })
   isDelivered: boolean;
+
+  @Prop({ type: Date, default: null })
+  orderDate: Date;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
