@@ -139,8 +139,8 @@ export class PaymentService {
       );
 
       await this.paymentModule.create(response);
-      await this.cartService.completeCart(idCard);
       await this.cartService.setOrderDate(idCard);
+      await this.cartService.completeCart(idCard);
 
       return (
         this.successTemplate

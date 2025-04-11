@@ -60,6 +60,11 @@ export class CartController {
     return this.cartService.completeCart(completeDto.cartId);
   }
 
+  @Post('delivered')
+  isDeliveredCart(@Body() completeDto: CompleteDto) {
+    return this.cartService.deliveryCart(completeDto.cartId);
+  }
+
   @Delete(':cartId/items/:idItem')
   @UseGuards(AuthGuard)
   removeItem(
@@ -74,5 +79,15 @@ export class CartController {
   @UseGuards(AuthGuard)
   getCartCompleted(@Req() req: RequestWithUser) {
     return this.cartService.getCartIsCompleted(req.user.email);
+  }
+
+  @Post('withdraw/user')
+  @UseGuards(AuthGuard)
+  retireCart(@Body() completeDto: CompleteDto, @Req() req: RequestWithUser) {
+    return this.cartService.retiredCart(
+      completeDto.cartId,
+      completeDto.code,
+      req.user.email,
+    );
   }
 }

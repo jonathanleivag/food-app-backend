@@ -6,6 +6,7 @@ import { Cart, CartDocument } from './schema/cart.schema';
 import { Model, ObjectId } from 'mongoose';
 import { ProductService } from '../product/product.service';
 import { UserService } from '../user/user.service';
+import { PusherService } from 'src/pusher/pusher.service';
 
 @Injectable()
 export class CartService {
@@ -13,6 +14,7 @@ export class CartService {
     @InjectModel(Cart.name) private readonly cartModule: Model<CartDocument>,
     private readonly productService: ProductService,
     private readonly userService: UserService,
+    private readonly pusherService: PusherService,
   ) {}
 
   async create(
@@ -199,7 +201,7 @@ export class CartService {
   }
 
   async completeCart(id: ObjectId): Promise<CartDocument> {
-    const cart = await this.cartModule.findById(id);
+    const cart = await this.cartModule.findById(id).populate('items.product');
     if (!cart) {
       throw new HttpException('Cart not found', HttpStatus.NOT_FOUND);
     }
@@ -209,6 +211,29 @@ export class CartService {
     }
 
     cart.isCompleted = true;
+
+    void this.pusherService.trigger('completeCart', 'complete-cart', cart);
+
+    return await cart.save();
+  }
+
+  async deliveryCart(id: ObjectId): Promise<CartDocument> {
+    const cart = await this.cartModule.findById(id).populate('items.product');
+    if (!cart) {
+      throw new HttpException('Cart not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (cart.isDelivered) {
+      throw new HttpException(
+        'products already delivered',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    cart.isDelivered = true;
+
+    void this.pusherService.trigger('isDeliveredCart', 'delivered-cart', cart);
+
     return await cart.save();
   }
 
@@ -255,7 +280,7 @@ export class CartService {
       .find({
         user: user._id,
         isCompleted: true,
-        isDelivered: false,
+        withdraw: false,
       })
       .populate('items.product');
     return existingCart;
@@ -268,5 +293,35 @@ export class CartService {
     }
     cart.orderDate = new Date();
     return await cart.save();
+  }
+
+  async retiredCart(idCart: ObjectId, code: string, email: string) {
+    const user = await this.userService.findOneByEmail(email);
+    const cart = await this.cartModule
+      .findOne({
+        _id: idCart,
+        isCompleted: true,
+        isDelivered: true,
+        user: user._id,
+      })
+      .populate('items.product');
+
+    if (!cart) {
+      throw new HttpException('Cart not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (cart.withdraw) {
+      throw new HttpException('Cart already retired', HttpStatus.BAD_REQUEST);
+    }
+
+    if (cart.code !== code) {
+      throw new HttpException('Invalid code', HttpStatus.BAD_REQUEST);
+    }
+    cart.withdraw = true;
+    await cart.save();
+
+    void this.pusherService.trigger('retiredCart', 'retired-cart', cart);
+
+    return cart;
   }
 }
