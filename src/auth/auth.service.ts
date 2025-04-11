@@ -48,6 +48,43 @@ export class AuthService {
     };
   }
 
+  async loginAmin(loginAuthDto: LoginAuthDto) {
+    const user = await this.userService.findOneByEmailAndRole(
+      loginAuthDto.email,
+      'ADMIN',
+    );
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const isMatch = await bcryptjs.compare(
+      loginAuthDto.password,
+      user.password,
+    );
+
+    if (!isMatch) {
+      throw new HttpException(
+        'User or password not working',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const payload = {
+      sub: user._id,
+      email: user.email,
+    };
+
+    const token = await this.jwtService.signAsync(payload);
+    const userWithoutPassword = await this.userService.findOne(
+      user.id as ObjectId,
+    );
+    return {
+      user: userWithoutPassword,
+      token,
+    };
+  }
+
   async register(
     createUserDto: CreateUserDto,
   ): Promise<UserDocumentWithoutPassword> {

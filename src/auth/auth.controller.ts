@@ -28,6 +28,11 @@ export class AuthController {
     return this.authService.login(loginAuthDto);
   }
 
+  @Post('login/admin')
+  loginAdmin(@Body() loginAuthDto: LoginAuthDto): Promise<LoginDocument> {
+    return this.authService.loginAmin(loginAuthDto);
+  }
+
   @Post('register')
   register(
     @Body() createUserDto: CreateUserDto,

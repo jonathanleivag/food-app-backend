@@ -51,6 +51,15 @@ export class Cart {
 
   @Prop({ type: Date, default: null })
   orderDate: Date;
+
+  @Prop({ type: Boolean, default: false })
+  withdraw: boolean;
+
+  @Prop({
+    type: String,
+    default: Math.floor(1000 + Math.random() * 9000).toString(),
+  })
+  code: string;
 }
 
 export const CartSchema = SchemaFactory.createForClass(Cart);
