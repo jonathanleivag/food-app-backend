@@ -60,6 +60,41 @@ export class ProductService {
   async findAll(
     page = 1,
     limit = 10,
+    isAvailable: boolean = true,
+  ): Promise<ProductFindAllPaginate | undefined> {
+    try {
+      const skip = (page - 1) * limit;
+      const [products, total] = await Promise.all([
+        this.productModule
+          .find({ isAvailable })
+          .populate('createdBy', ['name', 'email', 'role'])
+          .skip(skip)
+          .limit(limit)
+          .exec(),
+        this.productModule.countDocuments(),
+      ]);
+
+      return {
+        data: products,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: skip + limit < total,
+          hasPrevPage: page > 1,
+        },
+      };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+      }
+    }
+  }
+
+  async findAllAdmin(
+    page = 1,
+    limit = 10,
   ): Promise<ProductFindAllPaginate | undefined> {
     try {
       const skip = (page - 1) * limit;

@@ -41,6 +41,14 @@ export class ProductController {
     return this.productService.findAll(page, limit);
   }
 
+  @Get('admin')
+  findAllAdmin(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+  ): Promise<ProductFindAllPaginate | undefined> {
+    return this.productService.findAllAdmin(page, limit);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: ObjectId): Promise<ProductDocument | undefined> {
     return this.productService.findOne(id);
