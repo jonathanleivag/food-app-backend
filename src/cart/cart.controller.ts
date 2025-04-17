@@ -81,6 +81,11 @@ export class CartController {
     return this.cartService.getCartIsCompleted(req.user.email);
   }
 
+  @Get('completed/all')
+  getCartCompletedAll() {
+    return this.cartService.getCartIsCompletedAll();
+  }
+
   @Post('withdraw/user')
   @UseGuards(AuthGuard)
   retireCart(@Body() completeDto: CompleteDto, @Req() req: RequestWithUser) {

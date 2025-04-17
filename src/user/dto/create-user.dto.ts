@@ -18,13 +18,10 @@ export class CreateUserDto {
   @Transform(({ value }: { value: string }) => value.trim())
   @IsString({ message: 'password must be a string' })
   @IsNotEmpty({ message: 'password is required' })
-  @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&.])[A-Za-z\d@$!%*?&.]{8,}$/,
-    {
-      message:
-        'Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number and one special character',
-    },
-  )
+  @Matches(/^(?=.*[A-Z])[A-Za-z]{8,}$/, {
+    message:
+      'Password must be at least 8 characters long and contain at least one uppercase letter',
+  })
   password: string;
 
   @Transform(({ value }: { value: string }) => value.trim())

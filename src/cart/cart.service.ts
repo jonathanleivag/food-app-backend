@@ -286,6 +286,16 @@ export class CartService {
     return existingCart;
   }
 
+  async getCartIsCompletedAll() {
+    const existingCart = await this.cartModule
+      .find({
+        isCompleted: true,
+        withdraw: false,
+      })
+      .populate('items.product');
+    return existingCart;
+  }
+
   async setOrderDate(id: ObjectId) {
     const cart = await this.cartModule.findById(id);
     if (!cart) {

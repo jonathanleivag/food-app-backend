@@ -15,7 +15,10 @@ export class AuthService {
   ) {}
 
   async login(loginAuthDto: LoginAuthDto): Promise<LoginDocument> {
-    const user = await this.userService.findOneByEmail(loginAuthDto.email);
+    const user = await this.userService.findOneByEmailAndRole(
+      loginAuthDto.email,
+      'USER',
+    );
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -49,9 +52,8 @@ export class AuthService {
   }
 
   async loginAmin(loginAuthDto: LoginAuthDto) {
-    const user = await this.userService.findOneByEmailAndRole(
+    const user = await this.userService.findOneByEmailAndAdminOrWorker(
       loginAuthDto.email,
-      'ADMIN',
     );
 
     if (!user) {

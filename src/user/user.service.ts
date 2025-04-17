@@ -38,6 +38,10 @@ export class UserService {
     return await this.userModule.find().select('-password');
   }
 
+  async findAllByRole(role: string): Promise<UserDocumentWithoutPassword[]> {
+    return await this.userModule.find({ role }).select('-password');
+  }
+
   async findOne(id: ObjectId): Promise<UserDocumentWithoutPassword> {
     const user = await this.userModule.findById(id).select('-password');
 
@@ -73,6 +77,21 @@ export class UserService {
     return user;
   }
 
+  async findOneByEmailAndAdminOrWorker(email: string): Promise<UserDocument> {
+    const user = await this.userModule.findOne({
+      email,
+      role: { $in: ['ADMIN', 'WORKER'] },
+    });
+
+    if (user === null || user === undefined) {
+      throw new HttpException(
+        'User not found or role not working',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
+  }
+
   async update(
     id: ObjectId,
     updateUserDto: UpdateUserDto,
@@ -97,6 +116,7 @@ export class UserService {
 
   async remove(id: ObjectId): Promise<UserDocumentWithoutPassword> {
     const user = await this.userModule.findById(id).select('-password');
+
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
