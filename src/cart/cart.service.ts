@@ -7,6 +7,7 @@ import { Model, ObjectId } from 'mongoose';
 import { ProductService } from '../product/product.service';
 import { UserService } from '../user/user.service';
 import { PusherService } from 'src/pusher/pusher.service';
+import { UserRole } from 'src/user/enums/user-roles.enum';
 
 @Injectable()
 export class CartService {
@@ -70,6 +71,15 @@ export class CartService {
 
   async findAll(): Promise<CartDocument[]> {
     return await this.cartModule.find().populate('user items.product');
+  }
+  async findAllCompleted(): Promise<CartDocument[]> {
+    return await this.cartModule
+      .find({
+        isCompleted: true,
+        withdraw: true,
+        isDelivered: true,
+      })
+      .populate('user items.product');
   }
 
   async findOne(id: ObjectId): Promise<CartDocument> {
@@ -307,12 +317,15 @@ export class CartService {
 
   async retiredCart(idCart: ObjectId, code: string, email: string) {
     const user = await this.userService.findOneByEmail(email);
+    if (user.role !== UserRole.ADMIN && user.role !== UserRole.WORKER) {
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+    }
+
     const cart = await this.cartModule
       .findOne({
         _id: idCart,
         isCompleted: true,
         isDelivered: true,
-        user: user._id,
       })
       .populate('items.product');
 

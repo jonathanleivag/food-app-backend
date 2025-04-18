@@ -34,6 +34,11 @@ export class CartController {
     return this.cartService.findAll();
   }
 
+  @Get('active/completed')
+  findAllCompleted() {
+    return this.cartService.findAllCompleted();
+  }
+
   @Get('active')
   @UseGuards(AuthGuard)
   findActiveCart(@Req() req: RequestWithUser) {
