@@ -26,6 +26,32 @@ git clone <repository-url>
 
 ```bash
 $ npm install
+cp .env.example .env
+# MongoDB
+URI_MONGO=your_mongodb_uri
+
+# Pusher
+APP_ID_PUSHER=your_app_id
+KEY_PUSHER=your_key
+SECRET_PUSHER=your_secret
+CLUSTER_PUSHER=your_cluster
+
+# JWT
+JWT_SECRET=your_jwt_secret
+
+# MercadoPago
+PUBLIC_KEY_MERCADOPAGO=your_public_key
+ACCESS_TOKEN_MERCADOPAGO=your_access_token
+CLIENT_ID_MERCADOPAGO=your_client_id
+CLIENT_SECRET_MERCADOPAGO=your_client_secret
+
+# API URL
+URL_API=your_api_url
+
+# Email
+EMAIL=your_email
+
+npm install
 ```
 
 ## Compile and run the project
